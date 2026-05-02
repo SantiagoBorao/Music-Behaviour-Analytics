@@ -2,7 +2,8 @@
 data/
 
 # Generated outputs
-output/
+output/*
+!output/top10_songs.tsv
 
 # Python
 __pycache__/
