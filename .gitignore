@@ -1,10 +1,10 @@
 # Dataset - too large for git
-data/
-!data/README.txt
+exercise2/data/*
+!exercise2/data/README.txt
 
 # Generated outputs
-output/
-!output/top10_songs.tsv
+exercise2/output/*
+!exercise2/output/top10_songs.tsv
 
 # Python
 __pycache__/
