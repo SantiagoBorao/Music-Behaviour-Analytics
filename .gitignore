@@ -1,0 +1,13 @@
+# Dataset - too large for git
+data/
+
+# Generated outputs
+output/
+
+# Python
+__pycache__/
+*.pyc
+
+# Spark local files
+derby.log
+metastore_db/
