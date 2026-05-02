@@ -41,3 +41,54 @@ def assign_sessions(df):
     )
 
     return df
+
+def get_top_sessions(df):
+    session_lengths = (
+        df
+        .groupBy("userid", "session_id")
+        .agg(F.count("*").alias("track_count"))
+    )
+
+    rank_window = Window.orderBy(F.col("track_count").desc())
+    ranked = session_lengths.withColumn("rank", F.rank().over(rank_window))
+
+    return ranked.filter(F.col("rank") <= 50)
+
+def get_top_songs(df, top_sessions):
+    return (
+        df
+        .join(top_sessions.select("userid", "session_id"), on=["userid", "session_id"])
+        .groupBy("artist_name", "track_name")
+        .agg(F.count("*").alias("occurrences"))
+        .orderBy(F.col("occurrences").desc())
+        .limit(10)
+    )
+
+
+def save_results(results):
+    import os
+    os.makedirs("output", exist_ok=True)
+    with open("output/top10_songs.tsv", "w", encoding="utf-8") as f:
+        f.write("rank\tartist_name\ttrack_name\toccurrences\n")
+        for i, row in enumerate(results, 1):
+            f.write(f"{i}\t{row.artist_name}\t{row.track_name}\t{row.occurrences}\n")
+
+
+def main():
+    spark = create_spark_session()
+    spark.sparkContext.setLogLevel("WARN")
+
+    df = load_data(spark)
+    df = assign_sessions(df)
+
+    top_sessions = get_top_sessions(df)
+    top_songs = get_top_songs(df, top_sessions)
+
+    top_songs.show(truncate=False)
+    save_results(top_songs.collect())
+
+    spark.stop()
+
+
+if __name__ == "__main__":
+    main()
