@@ -6,6 +6,9 @@ exercise2/data/*
 exercise2/output/*
 !exercise2/output/top10_songs.tsv
 
+exercise3/output/*
+!exercise3/output/forecast.tsv
+
 # Python
 __pycache__/
 *.pyc
