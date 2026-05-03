@@ -8,6 +8,7 @@ exercise2/output/*
 
 exercise3/output/*
 !exercise3/output/forecast.tsv
+!exercise3/output/forecast_plot.png
 
 # Python
 __pycache__/
