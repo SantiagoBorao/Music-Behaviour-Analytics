@@ -35,13 +35,15 @@ Full results in [`output/top10_songs.tsv`](output/top10_songs.tsv).
 
 ## Running it
 
-Docker handles everything.
+Docker handles everything — no local Spark or Java setup needed.
 
 ```bash
-# Place the dataset TSV inside the root data/ folder
-# Then:
+# 1. Place the dataset TSV inside the repo root data/ folder
+
+# 2. From this directory (exercise2/), run:
 docker compose up --build
-# Results appear in output/top10_songs.tsv
+
+# 3. Results appear in exercise2/output/top10_songs.tsv
 ```
 
 ## A few implementation notes
