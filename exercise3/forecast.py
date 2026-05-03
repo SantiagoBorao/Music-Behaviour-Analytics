@@ -6,7 +6,8 @@ DATA_PATH = "../data/userid-timestamp-artid-artname-traid-traname.tsv"
 
 def load_and_build_sessions(path):
     df = pd.read_csv(path, sep="\t", header=None,
-                     names=["userid", "timestamp", "artistid", "artist_name", "trackid", "track_name"])
+                     names=["userid", "timestamp", "artistid", "artist_name", "trackid", "track_name"],
+                     on_bad_lines="skip")
     
     df["ts"] = pd.to_datetime(df["timestamp"], utc=True)
     df = df.dropna(subset=["userid", "ts", "track_name"])
