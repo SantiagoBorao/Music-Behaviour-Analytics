@@ -1,6 +1,6 @@
 # Dataset - too large for git
-exercise2/data/*
-!exercise2/data/README.txt
+data/*
+!data/README.txt
 
 # Generated outputs
 exercise2/output/*

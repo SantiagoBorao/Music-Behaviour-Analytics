@@ -2,7 +2,7 @@ import pandas as pd
 from prophet import Prophet
 import matplotlib.pyplot as plt
 
-DATA_PATH = "../exercise2/data/userid-timestamp-artid-artname-traid-traname.tsv"
+DATA_PATH = "../data/userid-timestamp-artid-artname-traid-traname.tsv"
 
 def load_and_build_sessions(path):
     df = pd.read_csv(path, sep="\t", header=None,
@@ -59,6 +59,17 @@ def forecast(weekly_df):
     
     return model, forecast_df
 
+def save_plot(model, forecast_df, userid):
+    fig = model.plot(forecast_df)
+    plt.title(f"Weekly session forecast — {userid}")
+    plt.xlabel("Date")
+    plt.ylabel("Sessions per week")
+    plt.tight_layout()
+    fig.savefig("output/forecast_plot.png", dpi=150)
+    plt.close()
+    print("Plot saved to output/forecast_plot.png")
+
+
 def save_results(forecast_df, userid):
     import os
     os.makedirs("output", exist_ok=True)
@@ -75,6 +86,7 @@ def main():
     weekly = build_time_series(df, top_user)
     model, forecast_df = forecast(weekly)
     save_results(forecast_df, top_user)
+    save_plot(model, forecast_df, top_user)
 
 
 if __name__ == "__main__":

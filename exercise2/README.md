@@ -1,25 +1,25 @@
-# Music Session Analysis
+# Session Analysis
 
-Large-scale listening session analysis using PySpark and Docker. Processes 19 million play events from the [Last.fm 1K dataset](http://ocelma.net/MusicRecommendationDataset/lastfm-1K.html) to identify the most played songs within the longest listening sessions.
+Processes 19 million play events from the [Last.fm 1K dataset](http://ocelma.net/MusicRecommendationDataset/lastfm-1K.html) using PySpark to find which songs appear most in people's longest listening sessions.
 
-## Main Goal
-
-> The goal was to get the top 10 most played songs across the top 50 longest listening sessions
-
-A session is defined as a continuous sequence of plays by the same user where each song starts within 20 minutes of the previous one.
+**Main objective**: when someone sits down for a marathon listening session, what are they actually playing?
 
 ## How it works
 
-1. **Load** — reads the TSV dataset and parses timestamps
-2. **Detect sessions** — uses a LAG window function to compute the gap between consecutive plays per user; flags a new session when the gap exceeds 20 minutes
-3. **Assign session IDs** — cumulative sum of the new-session flag gives each session a unique ID per user
-4. **Rank sessions** — groups by `(user, session)`, counts tracks, ranks globally by length
-5. **Find top songs** — joins back to the original plays, filters to the top 50 sessions, counts song occurrences
+Sessions are defined by gaps in play time, if more than 20 minutes pass between two songs, it's considered a new session. 
+
+The pipeline:
+
+1. Loads and parses the TSV dataset, converting timestamps to proper datetime types
+2. Detects session boundaries using a LAG window function per user
+3. Assigns session IDs via cumulative sum of the new-session flag
+4. Ranks all sessions globally by track count, keeps the top 50
+5. Counts song occurrences within those sessions
 
 ## Results
 
-| Rank | Artist | Track | Occurrences |
-|------|--------|-------|-------------|
+| Rank | Artist | Track | Plays |
+|------|--------|-------|-------|
 | 1 | Cake | Jolene | 1214 |
 | 2 | The Knife | Heartbeats | 868 |
 | 3 | Jeff Buckley & Gary Lucas | How Long Will It Take | 726 |
@@ -35,30 +35,26 @@ Full results in [`output/top10_songs.tsv`](output/top10_songs.tsv).
 
 ## Running it
 
-**Requirements:** Docker
+Docker handles everything.
 
 ```bash
-# 1. Place the dataset files inside data/
-#    Download from: http://ocelma.net/MusicRecommendationDataset/lastfm-1K.html
-
-# 2. Build and run
+# Place the dataset TSV inside the root data/ folder
+# Then:
 docker compose up --build
-
-# 3. Results appear in output/top10_songs.tsv
+# Results appear in output/top10_songs.tsv
 ```
 
-## Design decisions
+## A few implementation notes
 
-**`rank()` over `row_number()`** — if two sessions tie at position 50, both are included. Dropping one arbitrarily would give a misleading result.
+- **`rank()` instead of `row_number()`** — if two sessions tie at position 50, both are included. Dropping one arbitrarily would skew the song counts.
 
-**8 shuffle partitions** — the default of 200 is designed for large clusters. Running on a single node, 8 partitions eliminates unnecessary scheduling overhead without sacrificing correctness.
+- **8 shuffle partitions** — Spark defaults to 200, which makes sense for large clusters. On a single machine using less partitions improves efficency.
 
-**`collect()` for output** — the result is 10 rows. Pulling to the driver and writing with standard file I/O produces a single clean TSV rather than Spark's multi-part output directory.
+- **`collect()` for the final write** — the output is 10 rows. Writing from the driver produces one clean file instead of Spark's default multi-part directory.
 
 ## References
 
-- [Last.fm 1K Dataset](http://ocelma.net/MusicRecommendationDataset/lastfm-1K.html) — dataset source and description
-- [`data/README.txt`](data/README.txt) — dataset format and column definitions
-- [PySpark Window Functions](https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.Window.html) — used for LAG and cumulative sum
-- [PySpark SQL Functions](https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/functions.html) — full function reference
-- [Docker Compose documentation](https://docs.docker.com/compose/) — volume mounts and service configuration
+- [Last.fm 1K Dataset](http://ocelma.net/MusicRecommendationDataset/lastfm-1K.html)
+- [`data/README.txt`](../data/README.txt) — column definitions and format details
+- [PySpark Window Functions](https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.Window.html)
+- [Docker Compose](https://docs.docker.com/compose/)
