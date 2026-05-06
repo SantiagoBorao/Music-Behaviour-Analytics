@@ -26,6 +26,13 @@ python forecast.py
 # outputs: output/forecast.tsv, output/forecast_plot.png
 ```
 
+## Things to improve on with more time
+
+- **Cross-validate the model** — the forecast looks reasonable visually but there's no quantitative accuracy metric. Adding time-series cross-validation with Prophet's built-in `cross_validation` and `performance_metrics` would give an honest MAE or RMSE to report.
+- **Compare against baselines** — Prophet is a strong choice but it should be benchmarked against simpler models (ARIMA, exponential smoothing) to confirm it actually outperforms them on this data.
+- **Add external regressors** — Prophet supports additional input variables. Day-of-week effects or known events (holidays, music festival seasons) could improve accuracy if the data showed those patterns.
+- **Extend to all top-N users** — forecasting only the single most active user answers the brief but a more useful product would rank and forecast the top 10 or 20 power users, giving a richer picture of engaged listener behaviour.
+
 ## References
 
 - [Prophet documentation](https://facebook.github.io/prophet/docs/quick_start.html)

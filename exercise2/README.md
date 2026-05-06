@@ -54,6 +54,13 @@ docker compose up --build
 
 - **`collect()` for the final write** — the output is 10 rows. Writing from the driver produces one clean file instead of Spark's default multi-part directory.
 
+## Things to improve on with more time
+
+- **Parameterise the session gap and top-N** — the 20-minute threshold and top-50 sessions are hardcoded. Making them CLI arguments would let you explore how sensitive the results are to those choices.
+- **Add unit tests** — the session detection logic (LAG + cumsum) is the core of the pipeline and the most likely place for subtle bugs. A small test suite with known inputs and expected outputs would make it much more robust.
+- **Write results to Delta Lake** — for a production setting, writing to a TSV is fine for exploration but the output should land in a proper data lake layer so downstream consumers can query it reliably.
+- **Explore streaming session detection** — the current approach is batch. For a real-time recommendation system you'd want to detect session boundaries as events arrive, which would require a streaming approach with something like Spark Structured Streaming.
+
 ## References
 
 - [Last.fm 1K Dataset](http://ocelma.net/MusicRecommendationDataset/lastfm-1K.html)
